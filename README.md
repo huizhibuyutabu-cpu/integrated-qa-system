@@ -110,9 +110,10 @@ Web UI 直接浏览器打开 `new_index.html`（v2）或 `old_index.html`（v1�
 
 ## 相关项目
 
-本系统作为检索增强能力已集成至 [AgentCenter 智能体中台](https://github.com/your-github-username/agent-center)（多智能体 + MCP 工具 + RAG + 微服务治理完整链路），见该项目 README。
+本系统作为检索增强能力已集成至 [AgentCenter 智能体中台](https://github.com/huizhibuyutabu-cpu/agent-center)（多智能体 + MCP 工具 + RAG + 微服务治理完整链路），见该项目 README。
 
 ## 许可证
 
 [MIT](LICENSE)
+
 
