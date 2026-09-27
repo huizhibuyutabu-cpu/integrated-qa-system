@@ -1,0 +1,57 @@
+# MySQL 配置
+[mysql]
+host = localhost
+user = root
+password = your-mysql-password
+database = subjects_kg
+
+# Redis 配置
+[redis]
+host = localhost
+port = 6379
+password = your-redis-password
+db = 0
+
+# 日志配置
+[logger]
+log_file = logs/app.log
+
+# Milvus 配置
+[milvus]
+host = localhost
+port = 19530
+database_name = default
+collection_name = edurag_final
+
+# LLM 配置（DashScope API Key 在 https://dashscope.aliyuncs.com 控制台获取）
+[llm]
+model = qwen-plus
+dashscope_api_key = your-dashscope-api-key
+dashscope_base_url = https://dashscope.aliyuncs.com/compatible-mode/v1
+
+# 检索参数配置
+[retrieval]
+parent_chunk_size = 1200
+child_chunk_size = 300
+chunk_overlap = 50
+retrieval_k = 5
+candidate_m = 2
+
+# 应用配置
+[app]
+valid_sources = ["ai", "java", "test", "ops", "bigdata","tj"]
+customer_service_phone = 400-000-0000
+
+# AC API 服务配置
+[ac]
+port = 18077
+host = 0.0.0.0
+
+# Nacos 配置（可选：注册发现 + 提示词热更新，接入服务治理时启用）
+[nacos]
+server-addr = 127.0.0.1:8848
+username = your-nacos-username
+password = your-nacos-password
+discovery_name = edu-rag-server
+discovery_namespace = public
+discovery_ip = 127.0.0.1

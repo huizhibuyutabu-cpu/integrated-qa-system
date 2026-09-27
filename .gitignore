@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.python-version
+
+# IDE / editor
+.idea/
+.vscode/
+
+# logs & local session state
+logs/
+*.log
+.edurag_session
+
+# third-party / tool binaries
+ngrok.exe
+
+# teaching material & private data (do not open source)
+讲义/
+rag_qa/data/ai_data/
+rag_qa/data/tj_data/
+
+# large model weights: load from Hugging Face hub id (see README), no need to commit
+rag_qa/bert-base-chinese/
+rag_qa/bge-m3/
+rag_qa/bge-reranker-large/
+rag_qa/nlp_bert_document-segmentation_chinese-base/
+rag_qa/core/bert_query_classifier/
+rag_qa/core/bert_results/
+rag_qa/core/bert_logs/
+
+# jieba cache
+mysql_qa/utils/jieba.cache
+
+# real config with credentials: use config.ini.example as template
+config.ini

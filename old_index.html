@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识问答 · 企业版</title>
+    <style>
+        /* ---------- 全局重置 ---------- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f1f5f9;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        /* ---------- 主容器 ---------- */
+        .app {
+            width: 100%;
+            max-width: 860px;
+            height: 90vh;
+            max-height: 750px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ---------- 头部 ---------- */
+        .header {
+            padding: 20px 32px 16px 32px;
+            border-bottom: 1px solid #e9edf4;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: #3b82f6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .brand-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+        }
+        .brand-title small {
+            font-weight: 400;
+            font-size: 14px;
+            color: #64748b;
+            margin-left: 8px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #0b7e3d;
+            background: #e6f7e6;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            background: #0b7e3d;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ---------- 消息区域 ---------- */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px 12px 32px;
+            background: #fafcff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .messages::-webkit-scrollbar { width: 5px; }
+        .messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+        /* ---------- 消息气泡 ---------- */
+        .msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            animation: slideUp 0.3s ease;
+        }
+        .msg.user { align-self: flex-end; align-items: flex-end; }
+        .msg.assistant { align-self: flex-start; align-items: flex-start; }
+
+        .msg .bubble {
+            padding: 14px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-break: break-word;
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .msg.user .bubble {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-bottom-right-radius: 6px;
+        }
+        .msg.assistant .bubble {
+            border-bottom-left-radius: 6px;
+            background: #ffffff;
+        }
+        .msg .meta {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+            padding: 0 6px;
+            display: flex;
+            gap: 12px;
+        }
+        .msg.user .meta { color: #9bb5e8; }
+
+        /* ---------- 加载动画 ---------- */
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 14px 20px;
+            background: #f1f4f9;
+            border-radius: 20px;
+            border-bottom-left-radius: 6px;
+            width: fit-content;
+        }
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- 欢迎占位 ---------- */
+        .welcome {
+            text-align: center;
+            color: #64748b;
+            margin-top: 40px;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        .welcome strong { color: #0f172a; }
+        .welcome .examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .welcome .examples span {
+            background: #eef2ff;
+            color: #3b82f6;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .welcome .examples span:hover {
+            background: #d9dfff;
+            transform: scale(1.02);
+        }
+
+        /* ---------- 输入区 ---------- */
+        .input-area {
+            padding: 16px 32px 24px 32px;
+            border-top: 1px solid #e9edf4;
+            background: #ffffff;
+            flex-shrink: 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: #f8fafc;
+            border: 1px solid #dce1e8;
+            border-radius: 40px;
+            padding: 4px 4px 4px 18px;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .input-wrapper:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+            background: #ffffff;
+        }
+        .input-wrapper textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            padding: 12px 0;
+            min-height: 48px;
+            max-height: 120px;
+            line-height: 1.5;
+            outline: none;
+            color: #0f172a;
+        }
+        .input-wrapper textarea::placeholder {
+            color: #94a3b8;
+        }
+        .input-wrapper select {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: #1e293b;
+            padding: 10px 4px 10px 8px;
+            cursor: pointer;
+            outline: none;
+            border-left: 1px solid #dce1e8;
+            border-radius: 0;
+            min-width: 70px;
+            font-weight: 500;
+        }
+        .input-wrapper select:focus {
+            background: #f1f5f9;
+        }
+        .input-wrapper button {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            flex-shrink: 0;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .input-wrapper button:hover { background: #2563eb; }
+        .input-wrapper button:active { transform: scale(0.95); }
+        .input-wrapper button:disabled {
+            background: #b0b8c8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ---------- 响应式 ---------- */
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            .app { max-height: 100vh; border-radius: 16px; height: 100vh; }
+            .header { padding: 16px 20px; flex-wrap: wrap; gap: 8px; }
+            .header-left .brand-title { font-size: 16px; }
+            .messages { padding: 16px 20px; }
+            .input-area { padding: 12px 20px 18px 20px; }
+            .input-wrapper { padding: 2px 2px 2px 14px; }
+            .input-wrapper select { min-width: 60px; font-size: 13px; }
+            .input-wrapper button { padding: 8px 16px; font-size: 14px; }
+            .msg { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+    <!-- 头部 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="brand-icon">📘</div>
+            <div class="brand-title">
+                知识问答
+                <small>企业版</small>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="status">
+                <span class="dot"></span> 在线
+            </span>
+        </div>
+    </div>
+
+    <!-- 消息区 -->
+    <div class="messages" id="messages">
+        <div class="welcome" id="welcome">
+            <strong>👋 您好，我是知识助手</strong><br>
+            基于企业知识库，为您提供专业解答。<br>
+            选择学科，输入问题，立刻获得答案。
+            <div class="examples">
+                <span onclick="sendExample('什么是Transformer？')">Transformer</span>
+                <span onclick="sendExample('如何微调BERT？')">微调 BERT</span>
+                <span onclick="sendExample('N-gram 语言模型')">N-gram</span>
+                <span onclick="sendExample('课程大纲')">课程大纲</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 输入区 -->
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="inputBox" rows="1" placeholder="输入您的问题…" onkeydown="handleKey(event)"></textarea>
+            <select id="sourceFilter">
+                <option value="">全部</option>
+                <!-- 动态从后端加载，见下方 JS -->
+            </select>
+            <button id="sendBtn" onclick="sendMessage()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                发送
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 全局 ====================
+    const messagesEl = document.getElementById('messages');
+    const inputBox = document.getElementById('inputBox');
+    const sendBtn = document.getElementById('sendBtn');
+    const filterSelect = document.getElementById('sourceFilter');
+    const welcomeEl = document.getElementById('welcome');
+    const API_BASE = 'http://localhost:8000';
+    const QUERY_URL = `${API_BASE}/query`;
+    const SOURCES_URL = `${API_BASE}/sources`;
+
+    let isWaiting = false;
+
+    // ==================== 加载学科列表 ====================
+    fetch(SOURCES_URL)
+        .then(res => {
+            if (!res.ok) throw new Error('无法获取学科列表');
+            return res.json();
+        })
+        .then(data => {
+            // 保留第一个 "全部" 选项
+            filterSelect.innerHTML = '<option value="">全部</option>';
+            data.sources.forEach(src => {
+                const opt = document.createElement('option');
+                opt.value = src;
+                opt.textContent = src.toUpperCase();
+                filterSelect.appendChild(opt);
+            });
+        })
+        .catch(err => {
+            console.warn('学科列表加载失败，使用默认', err);
+            // 回退：从配置中写死（可选）
+            const fallback = ['ai','java','test','ops','bigdata'];
+            fallback.forEach(src => {
+                const opt = document.createElement('option');
+                opt.value = src;
+                opt.textContent = src.toUpperCase();
+                filterSelect.appendChild(opt);
+            });
+        });
+
+    // ==================== 消息操作 ====================
+    function appendMessage(role, text, extra = '') {
+        if (welcomeEl) welcomeEl.style.display = 'none';
+        const wrapper = document.createElement('div');
+        wrapper.className = `msg ${role}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        meta.textContent = extra ? `${time} · ${extra}` : time;
+
+        wrapper.appendChild(bubble);
+        wrapper.appendChild(meta);
+        messagesEl.appendChild(wrapper);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function showTyping() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg assistant';
+        wrapper.id = 'typing-indicator';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.style.padding = '14px 20px';
+        bubble.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+        wrapper.appendChild(bubble);
+        messagesEl.appendChild(wrapper);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function removeTyping() {
+        const el = document.getElementById('typing-indicator');
+        if (el) el.remove();
+    }
+
+    // ==================== 发送消息 ====================
+    async function sendMessage() {
+        const query = inputBox.value.trim();
+        if (!query || isWaiting) return;
+
+        const sourceFilter = filterSelect.value || '';
+
+        inputBox.value = '';
+        inputBox.style.height = 'auto';
+        inputBox.focus();
+
+        isWaiting = true;
+        sendBtn.disabled = true;
+
+        const userExtra = sourceFilter ? `学科: ${sourceFilter}` : '';
+        appendMessage('user', query, userExtra);
+        showTyping();
+
+        try {
+            const payload = { query };
+            if (sourceFilter) payload.source_filter = sourceFilter;
+
+            const resp = await fetch(QUERY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            removeTyping();
+
+            if (!resp.ok) {
+                let errMsg = `请求失败 (${resp.status})`;
+                try { const errData = await resp.json(); if (errData.detail) errMsg = errData.detail; } catch (_) {}
+                appendMessage('assistant', `❌ ${errMsg}`);
+                return;
+            }
+
+            const data = await resp.json();
+            const answer = data.answer || '无答案';
+            const time = data.processing_time ? `${data.processing_time.toFixed(2)}s` : '';
+            appendMessage('assistant', answer, `⏱️ ${time}`);
+
+        } catch (error) {
+            removeTyping();
+            appendMessage('assistant', `❌ 网络错误: ${error.message}`);
+        } finally {
+            isWaiting = false;
+            sendBtn.disabled = false;
+        }
+    }
+
+    // ==================== 示例快速发送 ====================
+    function sendExample(text) {
+        inputBox.value = text;
+        sendMessage();
+    }
+
+    // ==================== 键盘事件 ====================
+    function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
+    // ==================== 自动调整高度 ====================
+    inputBox.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // ==================== 初始聚焦 ====================
+    window.addEventListener('load', () => {
+        inputBox.focus();
+        // 点击空白区域聚焦输入框
+        document.addEventListener('click', (e) => {
+            const container = document.querySelector('.app');
+            if (container && container.contains(e.target) &&
+                !e.target.closest('textarea') &&
+                !e.target.closest('select') &&
+                !e.target.closest('button')) {
+                inputBox.focus();
+            }
+        });
+    });
+
+    console.log('📚 知识问答企业版已启动，后端需运行在 8000 端口');
+</script>
+</body>
+</html>
